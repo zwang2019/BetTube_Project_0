@@ -1,4 +1,7 @@
 # Reusable functions for SQL Query with pyodbc
+# LICENSE: Apache License - Version 2.0, January 2004 - http://www.apache.org/licenses/
+# Author: Z WANG
+# Date: 06/Mar/2022
 
 # setting the path
 import sys
@@ -13,7 +16,15 @@ from IPython.core.display_functions import display
 
 
 class SqlQueryResult(object):
-
+    ''' SQL Query Class
+    Attributes:
+        __init__ : connect to the server, when instance queryer has been created.
+        connect_to_server() : function that returns a connection class to server.
+        disconnect() : function that closes the connection.
+        query(sql_code) : query function which shows the query result in jupyter notebook.
+        result(*args) : When argument is empty, returns the last query results in Pandas Dataframe.
+                        When argument is SQL query code, returns current query results in Pandas Dataframe.
+    '''
     def __init__(self):
         self.connect_flag = 0
         self.connect = 'Initialization'
@@ -38,6 +49,12 @@ class SqlQueryResult(object):
         print('*** Connection Closed. ***')
 
     def query(self, sql_code):
+        ''' query database
+            Args:
+                sql_code : str , SQL query code.
+            Returns:
+                display the query results
+        '''
         # Send the SQL Query, and record response as a Pandas dataframe then show in jupyter.
         if self.connect_flag == 0:
             raise Exception('Error: No Connection. Use SqlQueryResult.connect_to_server()')
@@ -47,6 +64,12 @@ class SqlQueryResult(object):
             display(self.query_result)
 
     def result(self, *args):
+        ''' query database
+            Args:
+                sql_code : str , SQL query code. / empty
+            Returns:
+                query_result
+        '''
         if not args:
             if isinstance(self.query_result, str):
                 raise Exception('Error: No Query. Use SqlQueryResult.query(code) or SqlQueryResult.result(code)')
@@ -61,4 +84,21 @@ class SqlQueryResult(object):
                 self.query_result = pd.DataFrame(temp)
                 return self.query_result
 
+'''
+Example:
+# Config the server first.
+from sqlquerytools import SqlQueryResult
+# Create the instance and initialization.
+z_sql = SqlQueryResult()
+# Query
+z_sql.query(sql_code)
+# Results return in Pandas DataFrame.
+q1 = z_sql.result()
+q2 = z_sql.result(sql_code2)
+# Connection
+z_sql.disconnect()
+z_sql.connect_to_server()
+'''
+
 # print(Query.__dict__)
+
