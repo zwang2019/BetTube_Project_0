@@ -1,5 +1,6 @@
 # Reusable functions for SQL Query with pyodbc
 # LICENSE: Apache License - Version 2.0, January 2004 - http://www.apache.org/licenses/
+# Version: 1.0.0
 # Author: Z WANG
 # Date: 06/Mar/2022
 

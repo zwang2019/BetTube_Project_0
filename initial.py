@@ -20,3 +20,6 @@ print('*** Connection Established. ***')
 
 conn.close()
 print('*** Connection Closed. ***')
+
+
+print('project AFL started')
