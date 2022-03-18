@@ -16,6 +16,23 @@ import pandas as pd
 from IPython.core.display_functions import display
 
 
+###
+from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
+connection_string = ("DRIVER={ODBC Driver 17 for SQL Server};" +
+            "SERVER=Rando_server;DATABASE=" + "A_database"";UID=user;PWD=password")
+connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
+engine = create_engine(connection_url)
+
+
+sql_query = """SELECT TOP(10) *
+FROM CLIENT AS C WITH (NOLOCK)
+WHERE C.ARCHIVEPARTITION IN (0,1)
+OPTION (MAXDOP 1);"""
+data = pd.read_sql_query(sql_query, engine)
+
+
+
 class SqlQueryResult(object):
     ''' SQL Query Class
     Attributes:
