@@ -7,9 +7,10 @@
 # setting the path
 import sys
 
-sys.path.append(r'..\..\configure')
+#Hashed as config is in source code path
+#sys.path.append(r'..\..\configure')
 
-import conf
+import SQLconfig
 import pyodbc
 import pandas as pd
 
@@ -19,18 +20,17 @@ from IPython.core.display_functions import display
 ###
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
-connection_string = ("DRIVER={ODBC Driver 17 for SQL Server};" +
-            "SERVER=Rando_server;DATABASE=" + "A_database"";UID=user;PWD=password")
-connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
-engine = create_engine(connection_url)
-
-
-sql_query = """SELECT TOP(10) *
-FROM CLIENT AS C WITH (NOLOCK)
-WHERE C.ARCHIVEPARTITION IN (0,1)
-OPTION (MAXDOP 1);"""
-data = pd.read_sql_query(sql_query, engine)
-
+#connection_string = ("DRIVER={ODBC Driver 17 for SQL Server};" +
+#            "SERVER=Rando_server;DATABASE=" + "A_database"";UID=user;PWD=password")
+#connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
+#engine = create_engine(connection_url)
+#
+#
+#sql_query = """SELECT TOP(10) *
+#FROM CLIENT AS C WITH (NOLOCK)
+#WHERE C.ARCHIVEPARTITION IN (0,1)
+#OPTION (MAXDOP 1);"""
+#data = pd.read_sql_query(sql_query, engine)
 
 
 class SqlQueryResult(object):
@@ -43,10 +43,16 @@ class SqlQueryResult(object):
         result(*args) : When argument is empty, returns the last query results in Pandas Dataframe.
                         When argument is SQL query code, returns current query results in Pandas Dataframe.
     '''
-    def __init__(self):
+    def __init__(self, database = SQLconfig.configs['database'], option = "engine"):
         self.connect_flag = 0
         self.connect = 'Initialization'
-        self.connect_to_server()
+        self.details = ("DRIVER=%s;SERVER=%s;DATABASE=%s;UID=%s;PWD=%s"
+                    % (SQLconfig.configs['driver'], SQLconfig.configs['server'],database,
+                        SQLconfig.configs['uid'], SQLconfig.configs['pwd']))
+        if option == "engine":
+            self.connect_sqlalchemy()
+        else:
+            self.connect_to_server()
         self.query_result = 'Initialization'
         pd.set_option('display.max_columns', None)
         pd.set_option('display.max_rows', None)
@@ -55,7 +61,19 @@ class SqlQueryResult(object):
         # check the connection flag.
         if self.connect_flag == 0:
             print('*** Connecting to SQL Server... ***')
-            self.connect = pyodbc.connect(str(conf.configs['db']))
+            self.connect = pyodbc.connect(self.details)
+            self.connect_flag = 1
+            print('*** Connection Established. ***')
+        else:
+            print('*** Connection Has Already Been Established. ***')
+
+    def connect_sqlalchemy(self):
+        # check the connection flag.
+        if self.connect_flag == 0:
+            print('*** Connecting to SQL Server... ***')
+            connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": self.details})
+            engine = create_engine(connection_url)
+            self.connect = engine.connect()
             self.connect_flag = 1
             print('*** Connection Established. ***')
         else:
