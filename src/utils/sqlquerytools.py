@@ -7,7 +7,7 @@
 # setting the path
 import sys
 
-#Hashed as config is in source code path
+#Hashed as config is in source code path see sys.path
 #sys.path.append(r'..\..\configure')
 
 import SQLconfig
